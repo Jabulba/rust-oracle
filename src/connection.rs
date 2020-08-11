@@ -34,6 +34,7 @@ use crate::AssertSend;
 use crate::AssertSync;
 use crate::Context;
 use crate::DpiConn;
+use crate::DpiPool;
 use crate::DpiObjectType;
 use crate::Error;
 use crate::Result;
@@ -1303,5 +1304,82 @@ impl fmt::Debug for Connection {
             write!(f, ", tag_found: {:?}", self.tag_found)?;
         }
         write!(f, ", autocommit: {:?} }}", self.autocommit)
+    }
+}
+
+/// Pool Connection to an Oracle database
+pub struct PoolConnection {
+    pub(crate) ctxt: &'static Context,
+    pub(crate) handle: DpiPool,
+}
+
+impl PoolConnection {
+    pub fn create(
+        username: &str,
+        password: &str,
+        connect_string: &str,
+    ) -> Result<PoolConnection> {
+        let ctxt = Context::get()?;
+        let common_params = ctxt.common_create_params;
+        let mut pool_params = ctxt.pool_create_params;
+        let username = to_odpi_str(username);
+        let password = to_odpi_str(password);
+        let connect_string = to_odpi_str(connect_string);
+        let mut handle = ptr::null_mut();
+        chkerr!(
+            ctxt,
+            dpiPool_create(
+                ctxt.context,
+                username.ptr,
+                username.len,
+                password.ptr,
+                password.len,
+                connect_string.ptr,
+                connect_string.len,
+                &common_params,
+                &mut pool_params,
+                &mut handle
+            )
+        );
+        Ok(PoolConnection {
+            ctxt: ctxt,
+            handle: DpiPool::new(handle),
+        })
+    }
+
+    pub fn connect(&self) -> Result<Connection> {
+        let ctxt = Context::get()?;
+        let mut conn_params = ctxt.conn_create_params;
+        let username = ptr::null();
+        let password = ptr::null();
+        let mut handle = ptr::null_mut();
+        chkerr!(
+            ctxt,
+            dpiPool_acquireConnection(
+                self.handle.raw(),
+                username,
+                0u32,
+                password,
+                0u32,
+                &mut conn_params,
+                &mut handle
+            )
+        );
+        Ok(Connection {
+            ctxt: ctxt,
+            handle: DpiConn::new(handle),
+            tag: "".to_string(),
+            tag_found: false,
+            autocommit: false,
+            objtype_cache: Mutex::new(HashMap::new()),
+        })
+    }
+
+    pub fn close(&self) -> Result<()> {
+        chkerr!(
+            self.ctxt,
+            dpiPool_close(self.handle.raw(), DPI_MODE_CONN_CLOSE_DEFAULT)
+        );
+        Ok(())
     }
 }

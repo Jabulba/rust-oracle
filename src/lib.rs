@@ -309,6 +309,7 @@ mod version;
 
 pub use crate::connection::ConnStatus;
 pub use crate::connection::Connection;
+pub use crate::connection::PoolConnection;
 pub use crate::connection::Connector;
 pub use crate::connection::Privilege;
 pub use crate::connection::ShutdownMode;
@@ -376,6 +377,9 @@ macro_rules! define_dpi_data_with_refcount {
 
 // define DpiConn wrapping *mut dpiConn.
 define_dpi_data_with_refcount!(Conn);
+
+// define DpiConn wrapping *mut dpiPool.
+define_dpi_data_with_refcount!(Pool);
 
 // define DpiObjectType wrapping *mut dpiObjectType.
 define_dpi_data_with_refcount!(ObjectType);
