@@ -1308,17 +1308,17 @@ impl fmt::Debug for Connection {
 }
 
 /// Pool Connection to an Oracle database
-pub struct PoolConnection {
+pub struct ConnectionPool {
     pub(crate) ctxt: &'static Context,
     pub(crate) handle: DpiPool,
 }
 
-impl PoolConnection {
+impl ConnectionPool {
     pub fn create(
         username: &str,
         password: &str,
         connect_string: &str,
-    ) -> Result<PoolConnection> {
+    ) -> Result<ConnectionPool> {
         let ctxt = Context::get()?;
         let common_params = ctxt.common_create_params;
         let mut pool_params = ctxt.pool_create_params;
@@ -1341,7 +1341,7 @@ impl PoolConnection {
                 &mut handle
             )
         );
-        Ok(PoolConnection {
+        Ok(ConnectionPool {
             ctxt: ctxt,
             handle: DpiPool::new(handle),
         })

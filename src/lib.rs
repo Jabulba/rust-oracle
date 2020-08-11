@@ -309,7 +309,7 @@ mod version;
 
 pub use crate::connection::ConnStatus;
 pub use crate::connection::Connection;
-pub use crate::connection::PoolConnection;
+pub use crate::connection::ConnectionPool;
 pub use crate::connection::Connector;
 pub use crate::connection::Privilege;
 pub use crate::connection::ShutdownMode;
