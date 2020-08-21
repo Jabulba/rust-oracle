@@ -523,12 +523,12 @@ impl Default for dpiData {
 impl Default for dpiPoolCreateParams {
     fn default() -> dpiPoolCreateParams {
         dpiPoolCreateParams {
-            minSessions: 0,
+            minSessions: 1,
             maxSessions: 10,
             sessionIncrement: 0,
-            pingInterval: 0,
-            pingTimeout: 0,
-            homogeneous: 0,
+            pingInterval: 60,
+            pingTimeout: 5000,
+            homogeneous: 1,
             externalAuth: 0,
             getMode: 0,
             outPoolName: ptr::null(),

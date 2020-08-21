@@ -1315,8 +1315,16 @@ pub struct ConnectionPool {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ConnectionPoolOption {
+    pub min_session: Option<u32>,
     pub max_session: Option<u32>,
+    pub session_increment: Option<u32>,
+    pub ping_interval: Option<i32>,
+    pub ping_timeout_ms: Option<i32>,
+    pub homogeneous: Option<bool>,
     pub pool_name: Option<String>,
+    pub timeout: Option<u32>,
+    pub wait_timeout_ms: Option<u32>,
+    pub max_lifetime_session: Option<u32>,
 }
 
 impl ConnectionPool {
@@ -1324,25 +1332,53 @@ impl ConnectionPool {
         username: &str,
         password: &str,
         connect_string: &str,
-        option: &Option<ConnectionPoolOption>,
+        option: &ConnectionPoolOption,
     ) -> Result<ConnectionPool> {
         let ctxt = Context::get()?;
         let common_params = ctxt.common_create_params;
         let mut pool_params = ctxt.pool_create_params;
-        match option {
-            Some(option) => {
-                match option.max_session {
-                    Some(max_session) => pool_params.maxSessions = max_session,
-                    None => ()
-                }
-                match option.pool_name {
-                    Some(ref pool_name) => {
-                        let pool = to_odpi_str(pool_name);
-                        pool_params.outPoolName = pool.ptr;
-                        pool_params.outPoolNameLength = pool.len;
-                    } None => ()
-                }
+        match option.min_session {
+            Some(min_session) => pool_params.minSessions = min_session,
+            None => ()
+        }
+        match option.max_session {
+            Some(max_session) => pool_params.maxSessions = max_session,
+            None => ()
+        }
+        match option.session_increment {
+            Some(session_increment) => pool_params.sessionIncrement = session_increment,
+            None => ()
+        }
+        match option.ping_interval {
+            Some(ping_interval) => pool_params.pingInterval = ping_interval,
+            None => ()
+        }
+        match option.ping_timeout_ms {
+            Some(ping_timeout_ms) => pool_params.pingTimeout = ping_timeout_ms,
+            None => ()
+        }
+        match option.homogeneous {
+            Some(true) => pool_params.homogeneous = 1,
+            _ => pool_params.homogeneous = 0
+        }
+        match option.pool_name {
+            Some(ref pool_name) => {
+                let pool = to_odpi_str(pool_name);
+                pool_params.outPoolName = pool.ptr;
+                pool_params.outPoolNameLength = pool.len;
             } None => ()
+        }
+        match option.timeout {
+            Some(timeout) => pool_params.timeout = timeout,
+            None => ()
+        }
+        match option.wait_timeout_ms {
+            Some(wait_timeout_ms) => pool_params.waitTimeout = wait_timeout_ms,
+            None => ()
+        }
+        match option.max_lifetime_session {
+            Some(max_lifetime_session) => pool_params.maxLifetimeSession = max_lifetime_session,
+            None => ()
         }
         let username = to_odpi_str(username);
         let password = to_odpi_str(password);
