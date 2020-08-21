@@ -1358,8 +1358,8 @@ impl ConnectionPool {
             None => ()
         }
         match option.homogeneous {
-            Some(true) => pool_params.homogeneous = 1,
-            _ => pool_params.homogeneous = 0
+            Some(false) => pool_params.homogeneous = 0,
+            _ => pool_params.homogeneous = 1
         }
         match option.pool_name {
             Some(ref pool_name) => {
