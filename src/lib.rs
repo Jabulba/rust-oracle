@@ -310,6 +310,7 @@ mod version;
 pub use crate::connection::ConnStatus;
 pub use crate::connection::Connection;
 pub use crate::connection::ConnectionPool;
+pub use crate::connection::ConnectionPoolOption;
 pub use crate::connection::Connector;
 pub use crate::connection::Privilege;
 pub use crate::connection::ShutdownMode;
@@ -523,7 +524,7 @@ impl Default for dpiPoolCreateParams {
     fn default() -> dpiPoolCreateParams {
         dpiPoolCreateParams {
             minSessions: 0,
-            maxSessions: 0,
+            maxSessions: 10,
             sessionIncrement: 0,
             pingInterval: 0,
             pingTimeout: 0,

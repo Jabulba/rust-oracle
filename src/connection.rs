@@ -1313,15 +1313,37 @@ pub struct ConnectionPool {
     pub(crate) handle: DpiPool,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct ConnectionPoolOption {
+    pub max_session: Option<u32>,
+    pub pool_name: Option<String>,
+}
+
 impl ConnectionPool {
     pub fn create(
         username: &str,
         password: &str,
         connect_string: &str,
+        option: &Option<ConnectionPoolOption>,
     ) -> Result<ConnectionPool> {
         let ctxt = Context::get()?;
         let common_params = ctxt.common_create_params;
         let mut pool_params = ctxt.pool_create_params;
+        match option {
+            Some(option) => {
+                match option.max_session {
+                    Some(max_session) => pool_params.maxSessions = max_session,
+                    None => ()
+                }
+                match option.pool_name {
+                    Some(ref pool_name) => {
+                        let pool = to_odpi_str(pool_name);
+                        pool_params.outPoolName = pool.ptr;
+                        pool_params.outPoolNameLength = pool.len;
+                    } None => ()
+                }
+            } None => ()
+        }
         let username = to_odpi_str(username);
         let password = to_odpi_str(password);
         let connect_string = to_odpi_str(connect_string);
