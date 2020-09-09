@@ -1292,6 +1292,14 @@ impl Connection {
         );
         Ok(())
     }
+
+    pub fn release(&self) -> Result<()> {
+        chkerr!(
+            self.ctxt,
+            dpiConn_release(self.handle.raw())
+        );
+        Ok(())
+    }
 }
 
 impl fmt::Debug for Connection {
@@ -1433,10 +1441,36 @@ impl ConnectionPool {
         })
     }
 
+    pub fn get_open_count(&self) -> Result<u32> {
+        let mut value = 0u32;
+        chkerr!(
+            self.ctxt,
+            dpiPool_getOpenCount(self.handle.raw(), &mut value)
+        );
+        Ok(value)
+    }
+
+    pub fn get_busy_count(&self) -> Result<u32> {
+        let mut value = 0u32;
+        chkerr!(
+            self.ctxt,
+            dpiPool_getBusyCount(self.handle.raw(), &mut value)
+        );
+        Ok(value)
+    }
+
     pub fn close(&self) -> Result<()> {
         chkerr!(
             self.ctxt,
             dpiPool_close(self.handle.raw(), DPI_MODE_CONN_CLOSE_DEFAULT)
+        );
+        Ok(())
+    }
+
+    pub fn release(&self) -> Result<()> {
+        chkerr!(
+            self.ctxt,
+            dpiPool_release(self.handle.raw())
         );
         Ok(())
     }
