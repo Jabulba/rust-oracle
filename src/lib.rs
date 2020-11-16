@@ -392,6 +392,7 @@ define_dpi_data_with_refcount!(ObjectAttr);
 // Context
 //
 
+#[derive(Copy, Clone)]
 struct Context {
     pub context: *mut dpiContext,
     pub common_create_params: dpiCommonCreateParams,

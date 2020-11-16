@@ -1316,6 +1316,7 @@ impl fmt::Debug for Connection {
 }
 
 /// Pool Connection to an Oracle database
+#[derive(Clone)]
 pub struct ConnectionPool {
     pub(crate) ctxt: &'static Context,
     pub(crate) handle: DpiPool,
